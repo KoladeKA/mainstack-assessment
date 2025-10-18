@@ -23,8 +23,8 @@ export function DashboardPage() {
     const [filterModal, setFilterModal] = useState(false)
 
 
-    const {getAllTransaction, isLoading, transactionData} = useTransactionsStore()
-    const {getWalletInfo, walletData} = useWalletStore()
+    const { getAllTransaction, isLoading, transactionData } = useTransactionsStore()
+    const { getWalletInfo, walletData } = useWalletStore()
 
     useEffect(() => {
         getAllTransaction()
@@ -50,7 +50,7 @@ export function DashboardPage() {
         date: string
     }
 
-    const changeFilterData = (startDate:Date | null, endDate:Date | null, type:string[], status:string[]) => {
+    const changeFilterData = (startDate: Date | null, endDate: Date | null, type: string[], status: string[]) => {
         setSelectedStartDate(startDate);
         setSelectedEndDate(endDate);
         setSelectedTypeValues(type);
@@ -58,7 +58,7 @@ export function DashboardPage() {
     }
 
     const handleTransactionFilter = () => {
-        const filtered = transactionData?.filter((val:ITransaction) => {
+        const filtered = transactionData?.filter((val: ITransaction) => {
             return (
                 (!selectedStartDate || new Date(val.date) >= selectedStartDate) &&
                 (!selectedEndDate || new Date(val.date) <= selectedEndDate) &&
@@ -94,11 +94,13 @@ export function DashboardPage() {
 
     return (
         <div className="md:p-8">
-            {filterModal && 
-                <DashboardFilterComp filterModal={filterModal} closeModal={() => setFilterModal(false)} filterData={handleTransactionFilter} changeFilterData={changeFilterData} 
-                    startDate={selectedStartDate} endDate={selectedEndDate} typeValues={selectedTypeValues} statusValues={selectedStatusValues}
-                />
-            }
+
+                {filterModal &&
+                    <DashboardFilterComp filterModal={filterModal} closeModal={() => setFilterModal(false)} filterData={handleTransactionFilter} changeFilterData={changeFilterData}
+                        clearFilterData={handleClearFilter}
+                        startDate={selectedStartDate} endDate={selectedEndDate} typeValues={selectedTypeValues} statusValues={selectedStatusValues}
+                    />
+                }
 
             <div className="grid md:grid-cols-3 gap-20 mb-8">
                 <div className="md:col-span-2">
@@ -168,10 +170,10 @@ export function DashboardPage() {
                     </div>
                     <div className="flex gap-4">
                         <button className="cursor-pointer px-4 py-2 bg-gray-200 rounded-3xl text-sm font-medium hover:bg-gray-100 flex items-center gap-2"
-                            onClick={()=>setFilterModal(true)}
+                            onClick={() => setFilterModal(true)}
                         >
                             Filter
-                            {getFilterCount() > 0 && ( <span className="text-white bg-black h-5 w-5 rounded-full">{getFilterCount()}</span> )}
+                            {getFilterCount() > 0 && (<span className="text-white bg-black h-5 w-5 rounded-full">{getFilterCount()}</span>)}
                             <img src={arrowDownIcon} className="w-[12px]" alt="arrow down icon" />
                         </button>
                         <button className="cursor-pointer px-4 py-2 bg-gray-200 rounded-3xl text-sm font-medium hover:bg-gray-50 flex items-center gap-2">
@@ -185,11 +187,11 @@ export function DashboardPage() {
 
                 {!isLoading &&
                     <div className="space-y-4">
-                        {filteredTransactionData?.map((transaction:ITransaction, idx:number) => (
+                        {filteredTransactionData?.map((transaction: ITransaction, idx: number) => (
                             <div key={idx} className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0">
                                 <div className="flex items-center gap-4">
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center 
-                                        ${transaction?.type?.toLowerCase() === "deposit" ? "bg-[#E3FCF2]" : "bg-[#F9E3E0]" }`
+                                        ${transaction?.type?.toLowerCase() === "deposit" ? "bg-[#E3FCF2]" : "bg-[#F9E3E0]"}`
                                     }>
                                         <span
                                             className={`text-lg ${transaction?.type?.toLowerCase() === "deposit" ? "text-[#075132]" : "text-[#961100]"}`}
@@ -202,7 +204,7 @@ export function DashboardPage() {
                                         <div className="text-start">
                                             <p className="font-medium text-gray-900">
                                                 <>{transaction?.metadata?.product_name || transaction?.metadata?.type || "--"}</>
-                                                
+
                                             </p>
                                             <p className="text-sm text-gray-600">{transaction?.metadata?.name || "--"}</p>
                                         </div>
@@ -225,12 +227,12 @@ export function DashboardPage() {
                             </div>
                         ))}
 
-                        {filteredTransactionData?.length <1 &&
+                        {filteredTransactionData?.length < 1 &&
                             <div className="max-w-100 mx-auto text-gray-700 text-sm  mt-5">
                                 <img src={emptyStateIcon} className="w-[50px] mb-4 mx-auto" alt="info icon" />
                                 <h5 className="font-bold">No matching transaction found for the selected filter</h5>
                                 <p className="font-light">Change your filters to see more results, or add a new product.</p>
-                                <button className=" mt-4 px-4 py-2 cursor-pointer bg-gray-200 rounded-3xl text-sm font-medium hover:bg-gray-100" 
+                                <button className=" mt-4 px-4 py-2 cursor-pointer bg-gray-200 rounded-3xl text-sm font-medium hover:bg-gray-100"
                                     onClick={handleClearFilter}
                                 >
                                     Clear Filter

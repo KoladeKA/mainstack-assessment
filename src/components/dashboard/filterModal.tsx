@@ -3,6 +3,7 @@ import { DatePicker } from "../ui/datePicker/datepicker";
 import { ModalComp } from "../ui/modal";
 import type { Option } from '../ui/multiselect/types';
 import { MultiSelect } from "../ui/multiselect/multiselect";
+import { useState } from "react";
 
 
 interface FilterProps {
@@ -14,8 +15,10 @@ interface FilterProps {
     statusValues?: string[];
     changeFilterData?: (startDate: Date | null, endDate: Date | null, type: string[], status: string[]) => void;
     filterData?: () => void;
+    clearFilterData?: () => void;
 }
-export default function DashboardFilterComp({ closeModal, filterModal, startDate, endDate, typeValues, statusValues, changeFilterData, filterData }: FilterProps) {
+export default function DashboardFilterComp({ closeModal, filterModal, startDate, endDate, typeValues, statusValues, changeFilterData, filterData, clearFilterData }: FilterProps) {
+    const [error, setError] = useState("")
 
     const timeframe = [
         "Today", "Last 7 days", "This Month", "Last 3 Months"
@@ -56,12 +59,16 @@ export default function DashboardFilterComp({ closeModal, filterModal, startDate
     };
 
     const handleFilter = () => {
+        if(!startDate && !endDate && typeValues?.length === 0 && statusValues?.length === 0) return;
+         if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+            setError('Start date cannot be greater than end date');
+            return
+        }
         filterData?.();
         closeModal();
     };
     const handleClearFilter = () => {
-        changeFilterData?.(null, null, [], []);
-        filterData?.();
+        clearFilterData?.();
         closeModal();
     };
 
@@ -71,7 +78,6 @@ export default function DashboardFilterComp({ closeModal, filterModal, startDate
             <ModalComp isOpen={filterModal} title="Filter" justifyModal="justify-end" justifyTitle="justify-start" onClose={() => closeModal()} size={"max-w-md"}
                 minHeight="min-h-[97vh]" maxHeight="max-h-[99vh]"
             >
-
 
                 <div className="flex flex-col justify-between">
                     <div className="mt-5  min-h-[70vh]">
@@ -95,6 +101,7 @@ export default function DashboardFilterComp({ closeModal, filterModal, startDate
                                         format={customFormat}
                                         startOfWeek={1} // Monday as start of week
                                     />
+                                    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
                                 </div>
                                 <div >
                                     <DatePicker
@@ -108,6 +115,7 @@ export default function DashboardFilterComp({ closeModal, filterModal, startDate
                                         format={customFormat}
                                         startOfWeek={1} // Monday as start of week
                                     />
+                                    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
                                 </div>
                             </div>
                         </div>
@@ -117,12 +125,12 @@ export default function DashboardFilterComp({ closeModal, filterModal, startDate
                                 <MultiSelect
                                     className="w-full"
                                     options={typeOptions}
-                                    selectedValues={ typeValues ||[] }
+                                    selectedValues={typeValues || []}
                                     // onChange={setSelectedTypeValues}
-                                    onChange={(e)=>changeFilterData?.(startDate || null, endDate || null, e, statusValues || [])}
+                                    onChange={(e) => changeFilterData?.(startDate || null, endDate || null, e, statusValues || [])}
                                     placeholder="Select types"
-                                    // searchable={true}
-                                    // maxSelected={3}
+                                // searchable={true}
+                                // maxSelected={3}
                                 />
                             </div>
                         </div>
@@ -133,16 +141,16 @@ export default function DashboardFilterComp({ closeModal, filterModal, startDate
                                     className="w-full"
                                     options={statusOptions}
                                     selectedValues={statusValues || []}
-                                    onChange={(e)=>changeFilterData?.(startDate || null, endDate || null, typeValues || [], e)}
+                                    onChange={(e) => changeFilterData?.(startDate || null, endDate || null, typeValues || [], e)}
                                     placeholder="Select status..."
-                                    // searchable={true}
-                                    // maxSelected={3}
+                                // searchable={true}
+                                // maxSelected={3}
                                 />
                             </div>
                         </div>
                     </div>
                     <div className="mt-10 grid grid-cols-2 gap-2">
-                        <button className="px-4 py-2 border border-gray-300 rounded-full text-sm font-medium " 
+                        <button className="px-4 py-2 border border-gray-300 rounded-full text-sm font-medium "
                             onClick={handleClearFilter}
                         >
                             Clear
